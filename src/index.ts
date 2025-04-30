@@ -1,26 +1,20 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
-import readline from "readline";
+import { createProject } from './commands/create';
 
 const program = new Command();
 
 program
-  .name("starter-cli")
-  .description("A simple CLI using Commander.js")
-  .version("1.0.0");
+    .name("dev-launchpad")
+    .description("CLI that scaffolds a new project with best practices")
+    .version("0.1.0");
 
 program
-  .command("greet")
-  .description("Greet the user")
-  .action(() => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
+    .command("create <project-name>")
+    .description("Create a new project")
+    .action((projectName) => {
+        createProject(projectName);
     });
-
-    rl.question("What is your name? ", (name) => {
-      console.log(`Hello, ${name}!`);
-      rl.close();
-    });
-  });
 
 program.parse(process.argv);

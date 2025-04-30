@@ -6,9 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": {
-    "starter-cli": "./dist/index.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UsmanKhalil25/dev-launchpad.git"
@@ -23,10 +20,12 @@
   "homepage": "https://github.com/UsmanKhalil25/dev-launchpad#readme",
   "devDependencies": {
     "@types/commander": "^2.12.0",
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^22.15.3",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "inquirer": "^12.6.0"
   }
 }
