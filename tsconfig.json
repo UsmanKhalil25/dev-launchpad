@@ -3,10 +3,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "target": "ES2020",
-    "module": "CommonJS"
+    "module": "NodeNext"
   },
   "include": ["src"]
 }
