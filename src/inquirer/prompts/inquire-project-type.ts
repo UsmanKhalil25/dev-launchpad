@@ -1,5 +1,5 @@
 import inquirer from "inquirer";
-import { ProjectType } from "../../types/project-type.js";
+import { ProjectType } from "../../enums/index.js";
 
 async function inquireProjectType(): Promise<ProjectType> {
   const { projectType } = await inquirer.prompt([
