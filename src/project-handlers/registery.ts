@@ -1,6 +1,6 @@
 import { ProjectType } from "../enums/index.js";
 import { IProjectHandler } from "./interfaces/index.js";
-import { NextJsProjectHandler } from "./handlers/nextjs-handler.js";
+import { NextJsProjectHandler } from "./handlers/nextjs/nextjs-project-handler.js";
 
 export class ProjectHandlerRegistry {
   private static handlers: Map<ProjectType, IProjectHandler> = new Map();
