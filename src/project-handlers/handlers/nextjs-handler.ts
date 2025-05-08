@@ -1,9 +1,17 @@
 import * as process from "process";
+import fs from "fs";
+import { inquireNextjsLibrary } from "../../inquirer/prompts/inquire-nextjs-library.js";
+
 import { NextJsLibrary, ProjectType } from "../../enums/index.js";
 import { IProjectHandler } from "../interfaces/index.js";
+
+import {
+  dockerComposeContent,
+  databaseUrlEnv,
+} from "../../templates/docker/index.js";
+
 import { executeCommand } from "../../utils/index.js";
 import { Logger } from "../../utils/index.js";
-import { inquireNextjsLibrary } from "../../inquirer/prompts/inquire-nextjs-library.js";
 
 export class NextJsProjectHandler implements IProjectHandler {
   readonly type = ProjectType.NEXT_JS;
@@ -52,7 +60,8 @@ export class NextJsProjectHandler implements IProjectHandler {
     }
 
     if (this.isLibrarySelected(NextJsLibrary.PRISMA_DOCKER)) {
-      //TODO: initialize docker
+      await this.setupDockerCompose();
+      await this.updateEnv();
     }
   }
 
@@ -101,6 +110,28 @@ export class NextJsProjectHandler implements IProjectHandler {
       this.logger.success("Prisma initialized successfully");
     } catch (error) {
       this.logger.error("Failed to initialize Prisma", error);
+      throw error;
+    }
+  }
+
+  private async setupDockerCompose() {
+    try {
+      this.logger.info("Creating docker-compose file...");
+      await fs.promises.writeFile("docker-compose.yml", dockerComposeContent);
+      this.logger.success("docker-compose.yaml created successfully");
+    } catch (error) {
+      console.error("Failed to create docker-compose.yml:", error);
+      throw error;
+    }
+  }
+
+  private async updateEnv() {
+    try {
+      this.logger.info("Updating .env...");
+      await fs.promises.writeFile(".env", databaseUrlEnv);
+      this.logger.success(".env updated successfully");
+    } catch (error) {
+      console.error("Failed to create .env:", error);
       throw error;
     }
   }
