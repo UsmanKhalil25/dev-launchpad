@@ -1,4 +1,4 @@
-const dockerComposeContent = `
+const fileContent = `
 version: '3.8'
 services:
   postgres:
@@ -17,4 +17,4 @@ volumes:
   postgres_data:
 `;
 
-export { dockerComposeContent };
+export { fileContent as DOCKER_COMPOSE_CONTENT };

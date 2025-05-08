@@ -6,9 +6,15 @@ import { NextJsLibrary, ProjectType } from "../../enums/index.js";
 import { IProjectHandler } from "../interfaces/index.js";
 
 import {
-  dockerComposeContent,
-  databaseUrlEnv,
+  DOCKER_COMPOSE_CONTENT,
+  DATABASE_URL_ENV,
 } from "../../templates/docker/index.js";
+
+import {
+  PRISMA_SCHEMA_CONTENT,
+  PRISMA_SEEDER_CONTENT,
+  PRISMA_CLIENT_CONTENT,
+} from "../../templates/prisma/index.js";
 
 import { executeCommand } from "../../utils/index.js";
 import { Logger } from "../../utils/index.js";
@@ -57,6 +63,9 @@ export class NextJsProjectHandler implements IProjectHandler {
       await this.installTsxDependency();
       await this.installPrismaDependencies();
       await this.initializePrisma();
+      await this.generatePrismaSchema();
+      await this.generatePrismaSeeder();
+      await this.generatePrismaClient();
     }
 
     if (this.isLibrarySelected(NextJsLibrary.PRISMA_DOCKER)) {
@@ -114,24 +123,58 @@ export class NextJsProjectHandler implements IProjectHandler {
     }
   }
 
+  private async generatePrismaSchema() {
+    try {
+      await fs.promises.writeFile(
+        "prisma/schema.prisma",
+        PRISMA_SCHEMA_CONTENT
+      );
+      this.logger.success("Created 'prisma/schema.prisma'");
+    } catch (error) {
+      console.error("Failed to create 'prisma/schema.prisma':", error);
+      throw error;
+    }
+  }
+
+  private async generatePrismaSeeder() {
+    try {
+      await fs.promises.writeFile("prisma/seed.ts", PRISMA_SEEDER_CONTENT);
+      this.logger.success("Created 'prisma/seed.ts'");
+    } catch (error) {
+      console.error("Failed to create 'prisma/seed.ts':", error);
+      throw error;
+    }
+  }
+
+  private async generatePrismaClient() {
+    try {
+      await executeCommand("mkdir", ["src/lib"]);
+      await fs.promises.writeFile("src/lib/prisma.ts", PRISMA_CLIENT_CONTENT);
+      this.logger.success(
+        "Created 'src/lib/prisma.ts' (Prisma client wrapper)"
+      );
+    } catch (error) {
+      console.error("Failed to create 'lib/prisma.ts':", error);
+      throw error;
+    }
+  }
+
   private async setupDockerCompose() {
     try {
-      this.logger.info("Creating docker-compose file...");
-      await fs.promises.writeFile("docker-compose.yml", dockerComposeContent);
-      this.logger.success("docker-compose.yaml created successfully");
+      await fs.promises.writeFile("docker-compose.yml", DOCKER_COMPOSE_CONTENT);
+      this.logger.success("Created 'docker-compose.yml'");
     } catch (error) {
-      console.error("Failed to create docker-compose.yml:", error);
+      console.error("Failed to create 'docker-compose.yml':", error);
       throw error;
     }
   }
 
   private async updateEnv() {
     try {
-      this.logger.info("Updating .env...");
-      await fs.promises.writeFile(".env", databaseUrlEnv);
-      this.logger.success(".env updated successfully");
+      await fs.promises.writeFile(".env", DATABASE_URL_ENV);
+      this.logger.success("Created '.env' with DATABASE_URL");
     } catch (error) {
-      console.error("Failed to create .env:", error);
+      console.error("Failed to create '.env':", error);
       throw error;
     }
   }

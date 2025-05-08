@@ -1,2 +1,2 @@
 export * from "./docker-compose-template.js";
-export * from "./env-template.js";
+export * from "./database-url-env.js";
