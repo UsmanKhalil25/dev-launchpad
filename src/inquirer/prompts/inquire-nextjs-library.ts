@@ -1,32 +1,33 @@
 import inquirer from "inquirer";
-import { NextjsScaffoldOptions } from "../../enums/index.js";
+import { NextJsLibrary } from "../../enums/index.js";
 
-async function inquireNextjsLibraryChoices() {
+async function inquireNextjsLibrary(): Promise<NextJsLibrary[]> {
   const { selectedLibraries } = await inquirer.prompt({
     type: "checkbox",
     name: "selectedLibraries",
     message: "Select libraries to scaffold:",
+    required: true,
     choices: [
       {
         name: "Prisma",
-        value: NextjsScaffoldOptions.Prisma,
+        value: NextJsLibrary.PRISMA,
       },
       {
         name: "Prisma + Docker",
-        value: NextjsScaffoldOptions.PrismaPlusDocker,
+        value: NextJsLibrary.PRISMA_DOCKER,
       },
       {
         name: "NextAuth",
-        value: NextjsScaffoldOptions.NextAuth,
+        value: NextJsLibrary.NEXT_AUTH,
       },
       {
         name: "Tanstack Query",
-        value: NextjsScaffoldOptions.TanstackQuery,
+        value: NextJsLibrary.TANSTACK_QUERY,
       },
     ],
   });
 
-  console.log(selectedLibraries);
+  return selectedLibraries;
 }
 
-export { inquireNextjsLibraryChoices };
+export { inquireNextjsLibrary };

@@ -10,11 +10,11 @@ async function inquireProjectType(): Promise<ProjectType> {
       choices: [
         {
           name: "Next.js",
-          value: ProjectType.NextJs,
+          value: ProjectType.NEXT_JS,
         },
         {
           name: "TypeScript CLI",
-          value: ProjectType.TypeScriptCli,
+          value: ProjectType.TS_CLI,
         },
       ],
     },

@@ -1,6 +1,6 @@
 enum ProjectType {
-  NextJs = "next-js",
-  TypeScriptCli = "typescript-cli",
+  NEXT_JS = "next-js",
+  TS_CLI = "typescript-cli",
 }
 
 export { ProjectType };

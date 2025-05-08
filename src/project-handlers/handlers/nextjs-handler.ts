@@ -1,12 +1,14 @@
 import * as process from "process";
-import { ProjectType } from "../../enums/index.js";
+import { NextJsLibrary, ProjectType } from "../../enums/index.js";
 import { IProjectHandler } from "../interfaces/index.js";
 import { executeCommand } from "../../utils/index.js";
 import { Logger } from "../../utils/index.js";
+import { inquireNextjsLibrary } from "../../inquirer/prompts/inquire-nextjs-library.js";
 
 export class NextJsProjectHandler implements IProjectHandler {
-  readonly type = ProjectType.NextJs;
+  readonly type = ProjectType.NEXT_JS;
 
+  private libraryChoices: NextJsLibrary[] = [];
   private logger = new Logger("NextJsHandler");
 
   async create(projectName: string): Promise<boolean> {
@@ -32,36 +34,70 @@ export class NextJsProjectHandler implements IProjectHandler {
     );
     process.chdir(projectPath);
 
-    await this.installDependencies();
-    await this.initializePrisma();
+    this.libraryChoices = await inquireNextjsLibrary();
 
-    this.logger.success(`Successfully set up prisma at: ${projectPath}`);
+    if (this.libraryChoices.length > 0) {
+      await this.installLibraries();
+    }
   }
 
-  private async installDependencies(): Promise<void> {
-    this.logger.info("Installing dependencies...");
+  private async installLibraries() {
+    if (
+      this.isLibrarySelected(NextJsLibrary.PRISMA) ||
+      this.isLibrarySelected(NextJsLibrary.PRISMA_DOCKER)
+    ) {
+      await this.installTsxDependency();
+      await this.installPrismaDependencies();
+      await this.initializePrisma();
+    }
 
+    if (this.isLibrarySelected(NextJsLibrary.PRISMA_DOCKER)) {
+      //TODO: initialize docker
+    }
+  }
+
+  private isLibrarySelected(library: NextJsLibrary): boolean {
+    return this.libraryChoices.includes(library);
+  }
+
+  private async installTsxDependency(): Promise<void> {
     try {
-      await executeCommand("npm", ["install", "prisma", "--save-dev"]);
+      this.logger.info("Installing tsx development dependency...");
+
       await executeCommand("npm", ["install", "tsx", "--save-dev"]);
-      await executeCommand("npm", ["install", "@prisma/extension-accelerate"]);
-      this.logger.success("Dependencies installed successfully");
+
+      this.logger.success("tsx installed successfully");
     } catch (error) {
-      this.logger.error("Failed to install dependencies", error);
+      this.logger.error("Failed to install tsx", error);
+      throw error;
+    }
+  }
+
+  private async installPrismaDependencies(): Promise<void> {
+    try {
+      this.logger.info("Installing Prisma dependencies...");
+
+      await executeCommand("npm", ["install", "prisma", "--save-dev"]);
+      await executeCommand("npm", ["install", "@prisma/extension-accelerate"]);
+
+      this.logger.success("Prisma dependencies installed successfully");
+    } catch (error) {
+      this.logger.error("Failed to install Prisma dependencies", error);
       throw error;
     }
   }
 
   private async initializePrisma(): Promise<void> {
-    this.logger.info("Initializing Prisma...");
-
     try {
+      this.logger.info("Initializing Prisma...");
+
       await executeCommand("npx", [
         "prisma",
         "init",
         "--output",
         "../src/app/generated/prisma",
       ]);
+
       this.logger.success("Prisma initialized successfully");
     } catch (error) {
       this.logger.error("Failed to initialize Prisma", error);
