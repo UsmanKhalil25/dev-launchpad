@@ -18,10 +18,12 @@ import {
 
 import { executeCommand } from "../../utils/index.js";
 import { Logger } from "../../utils/index.js";
+import path from "path";
 
 export class NextJsProjectHandler implements IProjectHandler {
   readonly type = ProjectType.NEXT_JS;
 
+  private projectPath = "";
   private libraryChoices: NextJsLibrary[] = [];
   private logger = new Logger("NextJsHandler");
 
@@ -46,6 +48,7 @@ export class NextJsProjectHandler implements IProjectHandler {
     this.logger.info(
       `Running post-setup for Next.js project at: ${projectPath}`
     );
+    this.projectPath = projectPath;
     process.chdir(projectPath);
 
     this.libraryChoices = await inquireNextjsLibrary();
@@ -66,6 +69,7 @@ export class NextJsProjectHandler implements IProjectHandler {
       await this.generatePrismaSchema();
       await this.generatePrismaSeeder();
       await this.generatePrismaClient();
+      await this.updatePackageJson();
     }
 
     if (this.isLibrarySelected(NextJsLibrary.PRISMA_DOCKER)) {
@@ -155,6 +159,30 @@ export class NextJsProjectHandler implements IProjectHandler {
       );
     } catch (error) {
       console.error("Failed to create 'lib/prisma.ts':", error);
+      throw error;
+    }
+  }
+
+  private async updatePackageJson() {
+    try {
+      const packageJsonPath = path.join(this.projectPath, "package.json");
+
+      const raw = await fs.promises.readFile(packageJsonPath, "utf-8");
+      const pkg = JSON.parse(raw);
+
+      pkg.prisma = {
+        ...(pkg.prisma || {}),
+        seed: "tsx prisma/seed.ts",
+      };
+
+      await fs.promises.writeFile(
+        packageJsonPath,
+        JSON.stringify(pkg, null, 2) + "\n"
+      );
+
+      this.logger.success("Updated 'package.json' with Prisma seed script");
+    } catch (error) {
+      console.error("Failed to update 'package.json':", error);
       throw error;
     }
   }
