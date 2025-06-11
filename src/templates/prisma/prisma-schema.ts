@@ -1,13 +1,4 @@
 const fileContent = `
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique

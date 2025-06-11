@@ -3,16 +3,24 @@ import path from "path";
 
 import { ILibraryInstaller } from "../../../interfaces/library-installer.js";
 
-import { executeCommand, Logger } from "../../../../utils/index.js";
+import {
+  executeCommand,
+  Logger,
+  isDirectory,
+} from "../../../../utils/index.js";
 
 import {
   PRISMA_SCHEMA_CONTENT,
   PRISMA_SEEDER_CONTENT,
-  PRISMA_CLIENT_CONTENT,
 } from "../../../../templates/prisma/index.js";
 
 class PrismaInstaller implements ILibraryInstaller {
-  protected logger = new Logger("PrismaInstaller");
+  private logger = new Logger("PrismaInstaller");
+
+  get prismaOutputPath(): string {
+    const suffix = "app/generated/prisma";
+    return isDirectory("src") ? `../src/${suffix}` : `../${suffix}`;
+  }
 
   async install(projectPath: string): Promise<void> {
     try {
@@ -22,7 +30,6 @@ class PrismaInstaller implements ILibraryInstaller {
       await this.initializePrisma();
       await this.generatePrismaSchema();
       await this.generatePrismaSeeder();
-      await this.generatePrismaClient(projectPath);
       await this.updatePackageJson(projectPath);
 
       this.logger.success("Prisma setup completed");
@@ -51,7 +58,7 @@ class PrismaInstaller implements ILibraryInstaller {
         "prisma",
         "init",
         "--output",
-        "../src/app/generated/prisma",
+        this.prismaOutputPath,
       ]);
       this.logger.success("Prisma initialized successfully");
     } catch (error) {
@@ -62,7 +69,7 @@ class PrismaInstaller implements ILibraryInstaller {
 
   private async generatePrismaSchema(): Promise<void> {
     try {
-      await fs.promises.writeFile(
+      await fs.promises.appendFile(
         "prisma/schema.prisma",
         PRISMA_SCHEMA_CONTENT
       );
@@ -75,23 +82,13 @@ class PrismaInstaller implements ILibraryInstaller {
 
   private async generatePrismaSeeder(): Promise<void> {
     try {
-      await fs.promises.writeFile("prisma/seed.ts", PRISMA_SEEDER_CONTENT);
+      await fs.promises.writeFile(
+        "prisma/seed.ts",
+        PRISMA_SEEDER_CONTENT(this.prismaOutputPath)
+      );
       this.logger.success("Created 'prisma/seed.ts'");
     } catch (error) {
       this.logger.error("Failed to create 'prisma/seed.ts'", error);
-      throw error;
-    }
-  }
-
-  private async generatePrismaClient(projectPath: string): Promise<void> {
-    try {
-      await executeCommand("mkdir", ["-p", "src/lib"]);
-      await fs.promises.writeFile("src/lib/prisma.ts", PRISMA_CLIENT_CONTENT);
-      this.logger.success(
-        "Created 'src/lib/prisma.ts' (Prisma client wrapper)"
-      );
-    } catch (error) {
-      this.logger.error("Failed to create 'lib/prisma.ts'", error);
       throw error;
     }
   }

@@ -1,5 +1,5 @@
 interface ILibraryInstaller {
-  install(projectPath: string): Promise<void>;
+  install(projectPath?: string): Promise<void>;
 }
 
 export { ILibraryInstaller };

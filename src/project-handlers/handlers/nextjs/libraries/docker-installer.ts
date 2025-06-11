@@ -1,24 +1,20 @@
 import fs from "fs";
 
+import { ILibraryInstaller } from "../../../interfaces/library-installer.js";
+
 import { Logger } from "../../../../utils/index.js";
 
 import {
   DOCKER_COMPOSE_CONTENT,
   DATABASE_URL_ENV,
 } from "../../../../templates/docker/index.js";
-import { PrismaInstaller } from "./prisma-installer.js";
 
-class DockerInstaller extends PrismaInstaller {
-  constructor() {
-    super();
-    this.logger = new Logger("DockerInstaller");
-  }
+class DockerInstaller implements ILibraryInstaller {
+  private logger = new Logger("DockerInstaller");
 
-  async install(projectPath: string): Promise<void> {
+  async install(): Promise<void> {
     try {
-      this.logger.info("Setting up Docker for Prisma...");
-
-      await super.install(projectPath);
+      this.logger.info("Setting up Docker");
 
       await this.setupDockerCompose();
       await this.updateEnv();

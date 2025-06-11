@@ -14,18 +14,19 @@ export class NextJsProjectHandler implements IProjectHandler {
   private projectPath = "";
   private libraryChoices: NextJsLibrary[] = [];
   private logger = new Logger("NextJsHandler");
-  private libraryInstallers: Map<NextJsLibrary, ILibraryInstaller> = new Map();
+  private libraryInstallers: Map<NextJsLibrary, ILibraryInstaller[]> =
+    new Map();
 
   constructor() {
     this.registerInstallers();
   }
 
   private registerInstallers(): void {
-    this.libraryInstallers.set(NextJsLibrary.PRISMA, new PrismaInstaller());
-    this.libraryInstallers.set(
-      NextJsLibrary.PRISMA_DOCKER,
-      new DockerInstaller()
-    );
+    this.libraryInstallers.set(NextJsLibrary.PRISMA, [new PrismaInstaller()]);
+    this.libraryInstallers.set(NextJsLibrary.PRISMA_DOCKER, [
+      new PrismaInstaller(),
+      new DockerInstaller(),
+    ]);
   }
 
   async create(projectName: string): Promise<boolean> {
@@ -65,8 +66,8 @@ export class NextJsProjectHandler implements IProjectHandler {
 
     // Install selected libraries
     for (const library of this.libraryChoices) {
-      const installer = this.libraryInstallers.get(library);
-      if (installer) {
+      const installers = this.libraryInstallers.get(library) ?? [];
+      for (const installer of installers) {
         await installer.install(this.projectPath);
       }
     }
