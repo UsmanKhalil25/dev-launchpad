@@ -1,5 +1,4 @@
 import { ProjectType } from "../../enums/index.js";
-import { Logger } from "../../utils/logger.js";
 
 interface IProjectHandler {
   readonly type: ProjectType;

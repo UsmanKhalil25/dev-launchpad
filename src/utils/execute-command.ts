@@ -7,7 +7,6 @@ function executeCommand(
 ): Promise<number> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
-      stdio: "inherit",
       shell: true,
       ...options,
     });

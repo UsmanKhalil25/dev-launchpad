@@ -1,18 +1,22 @@
 import { inquireNextjsLibrary } from "../../../inquirer/prompts/inquire-nextjs-library.js";
 
 import { NextJsLibrary, ProjectType } from "../../../enums/index.js";
-import { ILibraryInstaller, IProjectHandler } from "../../interfaces/index.js";
+import {
+  ILibraryInstaller,
+  IProjectHandler,
+  IPostInstallationStep,
+} from "../../interfaces/index.js";
 
 import { PrismaInstaller, DockerInstaller } from "./libraries/index.js";
 
-import { executeCommand } from "../../../utils/index.js";
-import { Logger } from "../../../utils/index.js";
+import { executeCommand, Logger } from "../../../utils/index.js";
 
 export class NextJsProjectHandler implements IProjectHandler {
   readonly type = ProjectType.NEXT_JS;
 
   private projectPath = "";
   private libraryChoices: NextJsLibrary[] = [];
+  private postInstallationSteps: IPostInstallationStep[] = [];
   private logger = new Logger("NextJsHandler");
   private libraryInstallers: Map<NextJsLibrary, ILibraryInstaller[]> =
     new Map();
@@ -21,21 +25,14 @@ export class NextJsProjectHandler implements IProjectHandler {
     this.registerInstallers();
   }
 
-  private registerInstallers(): void {
-    this.libraryInstallers.set(NextJsLibrary.PRISMA, [new PrismaInstaller()]);
-    this.libraryInstallers.set(NextJsLibrary.PRISMA_DOCKER, [
-      new PrismaInstaller(),
-      new DockerInstaller(),
-    ]);
-  }
-
   async create(projectName: string): Promise<boolean> {
     this.logger.info(`Creating Next.js project: ${projectName}`);
 
-    const code = await executeCommand("npx", [
-      "create-next-app@latest",
-      projectName,
-    ]);
+    const code = await executeCommand(
+      "npx",
+      ["create-next-app@latest", projectName],
+      { stdio: "inherit" }
+    );
 
     if (code !== 0) {
       this.logger.error("There was an error while creating Next.js project");
@@ -57,18 +54,30 @@ export class NextJsProjectHandler implements IProjectHandler {
 
     if (this.libraryChoices.length > 0) {
       await this.installLibraries();
+      this.logPostInstallationSteps();
     }
   }
 
+  private registerInstallers(): void {
+    this.libraryInstallers.set(NextJsLibrary.PRISMA, [new PrismaInstaller()]);
+    this.libraryInstallers.set(NextJsLibrary.PRISMA_DOCKER, [
+      new PrismaInstaller(),
+      new DockerInstaller(),
+    ]);
+  }
+
   private async installLibraries(): Promise<void> {
-    // Install base dependencies that might be needed by multiple libraries
     await this.installBaseDependencies();
 
-    // Install selected libraries
     for (const library of this.libraryChoices) {
       const installers = this.libraryInstallers.get(library) ?? [];
       for (const installer of installers) {
         await installer.install(this.projectPath);
+
+        if (typeof installer.postInstallationSteps === "function") {
+          const steps = installer.postInstallationSteps();
+          this.postInstallationSteps.push(...steps);
+        }
       }
     }
   }
@@ -92,11 +101,23 @@ export class NextJsProjectHandler implements IProjectHandler {
   private async installTsxDependency(): Promise<void> {
     try {
       this.logger.info("Installing tsx development dependency...");
-      await executeCommand("npm", ["install", "tsx", "--save-dev"]);
+      await executeCommand("npm", ["install", "tsx", "--save-dev"], {
+        stdio: "ignore",
+      });
       this.logger.success("tsx installed successfully");
     } catch (error) {
       this.logger.error("Failed to install tsx", error);
       throw error;
     }
+  }
+
+  private logPostInstallationSteps(): void {
+    if (this.postInstallationSteps.length === 0) return;
+
+    this.logger.info("📌 Post-installation steps:");
+    this.postInstallationSteps.forEach((step) => {
+      const commandStr = [step.command, ...step.args].join(" ");
+      this.logger.info(`${commandStr} (${step.description})`);
+    });
   }
 }

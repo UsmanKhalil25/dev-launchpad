@@ -10,5 +10,5 @@ export function isDirectory(directoryName: string): boolean {
 
 export function isFile(filename: string): boolean {
   const filePath = path.join(process.cwd(), filename);
-  return fs.existsSync(filePath) && fs.lstatSync(filePath).isDirectory();
+  return fs.existsSync(filePath) && fs.lstatSync(filePath).isFile();
 }

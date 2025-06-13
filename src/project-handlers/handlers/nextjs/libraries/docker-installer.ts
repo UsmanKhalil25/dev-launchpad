@@ -2,48 +2,59 @@ import fs from "fs";
 
 import { ILibraryInstaller } from "../../../interfaces/library-installer.js";
 
-import { Logger } from "../../../../utils/index.js";
+import { isFile, Logger } from "../../../../utils/index.js";
 
 import {
   DOCKER_COMPOSE_CONTENT,
   DATABASE_URL_ENV,
 } from "../../../../templates/docker/index.js";
+import { IPostInstallationStep } from "../../../interfaces/post-installation-step.js";
 
 class DockerInstaller implements ILibraryInstaller {
   private logger = new Logger("DockerInstaller");
 
   async install(): Promise<void> {
-    try {
-      this.logger.info("Setting up Docker");
+    this.logger.info("Setting up Docker");
 
-      await this.setupDockerCompose();
-      await this.updateEnv();
+    await this.setupDockerCompose();
+    await this.updateEnv();
 
-      this.logger.success("Docker setup completed");
-    } catch (error) {
-      this.logger.error("Failed to set up Docker", error);
-      throw error;
-    }
+    this.logger.success("Docker setup completed");
   }
 
   private async setupDockerCompose(): Promise<void> {
+    const file = "docker-compose.yml";
     try {
-      await fs.promises.writeFile("docker-compose.yml", DOCKER_COMPOSE_CONTENT);
-      this.logger.success("Created 'docker-compose.yml'");
+      if (isFile(file)) {
+        this.logger.info(`'${file}' already exists. Skipping creation.`);
+        return;
+      }
+      await fs.promises.writeFile(file, DOCKER_COMPOSE_CONTENT);
+      this.logger.success(`Created '${file}'`);
     } catch (error) {
-      this.logger.error("Failed to create 'docker-compose.yml'", error);
+      this.logger.error(`Failed to create '${file}'`, error);
       throw error;
     }
   }
 
   private async updateEnv(): Promise<void> {
+    const file = ".env";
     try {
-      await fs.promises.writeFile(".env", DATABASE_URL_ENV);
-      this.logger.success("Created '.env' with DATABASE_URL");
+      await fs.promises.writeFile(file, DATABASE_URL_ENV);
+      this.logger.success(`Created '${file}' with DATABASE_URL`);
     } catch (error) {
-      this.logger.error("Failed to create '.env'", error);
+      this.logger.error(`Failed to create '${file}'`, error);
       throw error;
     }
+  }
+  postInstallationSteps(): IPostInstallationStep[] {
+    return [
+      {
+        command: "docker",
+        args: ["compose", "up"],
+        description: "Start the PostgreSQL container using Docker Compose",
+      },
+    ];
   }
 }
 
