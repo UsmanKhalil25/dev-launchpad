@@ -1,6 +1,9 @@
 import fs from "fs";
 
-import { ILibraryInstaller } from "../../../interfaces/library-installer.js";
+import {
+  ILibraryInstaller,
+  IPostInstallationStep,
+} from "../../../interfaces/index.js";
 
 import { isFile, Logger } from "../../../../utils/index.js";
 
@@ -8,7 +11,6 @@ import {
   DOCKER_COMPOSE_CONTENT,
   DATABASE_URL_ENV,
 } from "../../../../templates/docker/index.js";
-import { IPostInstallationStep } from "../../../interfaces/post-installation-step.js";
 
 class DockerInstaller implements ILibraryInstaller {
   private logger = new Logger("DockerInstaller");

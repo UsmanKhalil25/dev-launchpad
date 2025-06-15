@@ -26,20 +26,31 @@ export class NextJsProjectHandler implements IProjectHandler {
   }
 
   async create(projectName: string): Promise<boolean> {
+    const FLAGS = [
+      "--ts",
+      "--tailwind",
+      "--eslint",
+      "--app",
+      "--api",
+      "--src-dir",
+      "--turbopack",
+      "--import-alias '@/*'",
+    ];
+
+    const commandArgs = ["create-next-app@latest", projectName, ...FLAGS];
+
     this.logger.info(`Creating Next.js project: ${projectName}`);
 
-    const code = await executeCommand(
-      "npx",
-      ["create-next-app@latest", projectName],
-      { stdio: "inherit" }
-    );
+    const exitCode = await executeCommand("npx", commandArgs, {
+      stdio: "inherit",
+    });
 
-    if (code !== 0) {
-      this.logger.error("There was an error while creating Next.js project");
+    if (exitCode !== 0) {
+      this.logger.error("Failed to create Next.js project");
       return false;
     }
 
-    this.logger.success(`Next.js project created successfully`);
+    this.logger.success("Next.js project created successfully");
     return true;
   }
 
@@ -115,6 +126,7 @@ export class NextJsProjectHandler implements IProjectHandler {
     if (this.postInstallationSteps.length === 0) return;
 
     this.logger.info("📌 Post-installation steps:");
+
     this.postInstallationSteps.forEach((step) => {
       const commandStr = [step.command, ...step.args].join(" ");
       this.logger.info(`${commandStr} (${step.description})`);

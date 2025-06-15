@@ -6,11 +6,7 @@ import {
   IPostInstallationStep,
 } from "../../../interfaces/index.js";
 
-import {
-  executeCommand,
-  Logger,
-  isDirectory,
-} from "../../../../utils/index.js";
+import { executeCommand, Logger } from "../../../../utils/index.js";
 
 import {
   PRISMA_SCHEMA_CONTENT,
@@ -21,8 +17,7 @@ class PrismaInstaller implements ILibraryInstaller {
   private logger = new Logger("PrismaInstaller");
 
   get prismaOutputPath(): string {
-    const suffix = "app/generated/prisma";
-    return isDirectory("src") ? `../src/${suffix}` : `../${suffix}`;
+    return "../src/app/generated/prisma";
   }
 
   async install(projectPath: string): Promise<void> {
