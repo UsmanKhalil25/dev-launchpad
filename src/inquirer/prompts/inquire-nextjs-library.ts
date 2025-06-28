@@ -16,14 +16,6 @@ async function inquireNextjsLibrary(): Promise<NextJsLibrary[]> {
         name: "Prisma + Docker",
         value: NextJsLibrary.PRISMA_DOCKER,
       },
-      {
-        name: "NextAuth",
-        value: NextJsLibrary.NEXT_AUTH,
-      },
-      {
-        name: "Tanstack Query",
-        value: NextJsLibrary.TANSTACK_QUERY,
-      },
     ],
   });
 
