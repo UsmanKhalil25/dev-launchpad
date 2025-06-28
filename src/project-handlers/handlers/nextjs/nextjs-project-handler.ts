@@ -137,7 +137,7 @@ export class NextJsProjectHandler implements IProjectHandler {
 
     this.postInstallationSteps.forEach((step) => {
       const commandStr = [step.command, ...step.args].join(" ");
-      this.logger.info(`${commandStr} (${step.description})`);
+      this.logger.info(`  • ${commandStr} → ${step.description}`);
     });
   }
 }

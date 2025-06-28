@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import { ProjectType } from "../../../enums/project-type.js";
-import { IProjectHandler } from "../../interfaces/index.js";
+import { IProjectHandler, IPostInstallationStep } from "../../interfaces/index.js";
 
 import { executeCommand, Logger } from "../../../utils/index.js";
 
@@ -49,6 +49,8 @@ export class TypescriptCliProjectHandler implements IProjectHandler {
     this.logger.success(
       "TypeScript CLI project setup completed successfully"
     );
+
+    this.logPostInstallationSteps();
   }
 
   private async createPackageJson(projectName: string): Promise<void> {
@@ -145,6 +147,26 @@ export class TypescriptCliProjectHandler implements IProjectHandler {
       this.logger.error(`Failed to create '${filePath}'`, error);
       throw error;
     }
+  }
+  private logPostInstallationSteps(): void {
+    const postInstallationSteps: IPostInstallationStep[] = [
+      {
+        command: "npm",
+        args: ["run", "build"],
+        description: "Build the Typescript Cli",
+      },
+      {
+        command: "npm",
+        args: ["run", "start"],
+        description: "Start the Typescript Cli",
+      },
+    ];
+
+    this.logger.info("📌 Post-installation steps:");
+    postInstallationSteps.forEach((step) => {
+      const commandStr = [step.command, ...step.args].join(" ");
+      this.logger.info(`  • ${commandStr} → ${step.description}`);
+    });
   }
 }
 
