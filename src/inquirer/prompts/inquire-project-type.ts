@@ -12,6 +12,10 @@ async function inquireProjectType(): Promise<ProjectType> {
           name: "Next.js",
           value: ProjectType.NEXT_JS,
         },
+        {
+          name: "TypeScript CLI",
+          value: ProjectType.TS_CLI,
+        },
       ],
     },
   ]);

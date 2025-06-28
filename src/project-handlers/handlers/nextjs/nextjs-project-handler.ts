@@ -1,3 +1,5 @@
+import path from "path"
+
 import { inquireNextjsLibrary } from "../../../inquirer/prompts/inquire-nextjs-library.js";
 
 import { NextJsLibrary, ProjectType } from "../../../enums/index.js";
@@ -34,33 +36,39 @@ export class NextJsProjectHandler implements IProjectHandler {
       "--api",
       "--src-dir",
       "--turbopack",
-      "--import-alias '@/*'",
+      "--import-alias", "@/*",
     ];
 
     const commandArgs = ["create-next-app@latest", projectName, ...FLAGS];
 
-    this.logger.info(`Creating Next.js project: ${projectName}`);
+    try {
+      this.logger.info(`Creating Next.js project: ${projectName}`);
 
-    const exitCode = await executeCommand("npx", commandArgs, {
-      stdio: "inherit",
-    });
+      const exitCode = await executeCommand("npx", commandArgs, {
+        stdio: "inherit",
+      });
 
-    if (exitCode !== 0) {
-      this.logger.error("Failed to create Next.js project");
+      if (exitCode !== 0) {
+        this.logger.error("Failed to create Next.js project");
+        return false;
+      }
+
+      this.logger.success("Next.js project created successfully");
+      return true;
+    } catch (error) {
+      this.logger.error("An error occurred while creating the project:", error);
       return false;
     }
-
-    this.logger.success("Next.js project created successfully");
-    return true;
   }
 
-  async postSetup(projectPath: string): Promise<void> {
-    this.logger.info(
-      `Running post-setup for Next.js project at: ${projectPath}`
-    );
-    this.projectPath = projectPath;
-    process.chdir(projectPath);
+  async postSetup(projectName: string): Promise<void> {
 
+    this.projectPath = path.join(process.cwd(), projectName);
+    process.chdir(this.projectPath);
+
+    this.logger.info(
+      `Running post-setup for Next.js project at: ${this.projectPath}`
+    );
     this.libraryChoices = await inquireNextjsLibrary();
 
     if (this.libraryChoices.length > 0) {

@@ -25,8 +25,7 @@ async function initProject(projectName: string) {
     const success = await handler.create(projectName);
 
     if (success && handler.postSetup) {
-      const projectPath = path.join(process.cwd(), projectName);
-      await handler.postSetup(projectPath);
+      await handler.postSetup(projectName);
     }
   } catch (error) {
     console.error(`Failed to initialize project:`, error);
