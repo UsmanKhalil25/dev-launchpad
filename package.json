@@ -6,11 +6,18 @@
   "bin": {
     "dev-launchpad": "dist/index.js"
   },
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "npm run build && npm run start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -27,7 +34,7 @@
     "project-template",
     "boilerplate"
   ],
-  "author": "Usman Khalil",
+  "author": "usmankhalil25",
   "license": "ISC",
   "type": "module",
   "bugs": {

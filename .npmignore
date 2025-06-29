@@ -1,0 +1,36 @@
+# Source files (not needed in npm package)
+src/
+tsconfig.json
+
+# Development files
+.git/
+.gitignore
+README.md
+
+# Development dependencies
+node_modules/
+
+# Build artifacts (keep dist/ but exclude source maps if any)
+*.tsbuildinfo
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+
+# Test files (if any)
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts 
