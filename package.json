@@ -1,8 +1,11 @@
 {
   "name": "dev-launchpad",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A powerful CLI tool for rapidly scaffolding modern development projects with pre-configured libraries and best practices",
+  "main": "dist/index.js",
+  "bin": {
+    "dev-launchpad": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -13,8 +16,18 @@
     "type": "git",
     "url": "git+https://github.com/UsmanKhalil25/dev-launchpad.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cli",
+    "scaffold",
+    "generator",
+    "nextjs",
+    "typescript",
+    "prisma",
+    "docker",
+    "project-template",
+    "boilerplate"
+  ],
+  "author": "Usman Khalil",
   "license": "ISC",
   "type": "module",
   "bugs": {
