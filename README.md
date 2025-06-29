@@ -8,11 +8,11 @@ A powerful CLI tool for rapidly scaffolding modern development projects with pre
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Types](#project-types)
-- [Next.js Libraries](#nextjs-libraries)
+- [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
+- [Configuration](#configuration)
+- [Examples](#examples)
 
 ## ✨ Features
 
@@ -117,6 +117,70 @@ Creates a fully configured TypeScript CLI application with:
 - **Build System**: TypeScript compilation setup
 - **Development Tools**: ts-node for development
 - **Project Structure**: Organized source code layout
+
+## 🏛️ Architecture
+
+### Design Patterns
+
+The project follows several design patterns for maintainability and extensibility:
+
+#### Registry Pattern
+
+- **ProjectHandlerRegistry**: Central registry for all project type handlers
+- **Dynamic Handler Registration**: Easy to add new project types
+- **Interface-based Design**: All handlers implement `IProjectHandler`
+
+#### Strategy Pattern
+
+- **Library Installers**: Different installation strategies for each library
+- **Template System**: Flexible template generation for different project types
+- **Prompt System**: Extensible prompt system for user interactions
+
+#### Factory Pattern
+
+- **Template Factories**: Generate different project structures
+- **Handler Creation**: Create appropriate handlers based on project type
+
+### Core Components
+
+#### Command Layer (`src/commander/`)
+
+- Handles CLI argument parsing using Commander.js
+- Routes commands to appropriate actions
+- Provides help and usage information
+
+#### Prompt Layer (`src/inquirer/`)
+
+- Manages interactive user prompts
+- Validates user input
+- Provides guided project creation flow
+
+#### Handler Layer (`src/project-handlers/`)
+
+- Implements project creation logic
+- Manages library installations
+- Handles post-setup tasks
+
+#### Template Layer (`src/templates/`)
+
+- Contains project templates
+- Provides file generation utilities
+- Supports customization and extension
+
+#### Utility Layer (`src/utils/`)
+
+- Common utilities for file operations
+- Command execution helpers
+- Logging and error handling
+
+### Extension Points
+
+The architecture is designed for easy extension:
+
+1. **New Project Types**: Implement `IProjectHandler` interface
+2. **New Libraries**: Implement `ILibraryInstaller` interface
+3. **New Templates**: Add templates to the appropriate directory
+4. **New Prompts**: Extend the prompt system with new questions
 
 ## 📁 Project Structure
 
@@ -230,19 +294,3 @@ This will create:
 - Commander.js integration
 - Build and start scripts
 - Development environment setup
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Add proper error handling
-- Include comprehensive logging
-- Write clear documentation
-- Test your changes thoroughly
